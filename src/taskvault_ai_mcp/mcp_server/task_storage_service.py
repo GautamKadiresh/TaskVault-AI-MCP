@@ -8,8 +8,9 @@ from langchain_ollama import OllamaEmbeddings
 from configs import VECTOR_DB_CONFIG
 import os
 
+
 class TaskStorageMcpServer:
-    def __init__(self,clean_db=False):
+    def __init__(self, clean_db=False):
         self.mcp = FastMCP("task_storage_mcp_server")
         self.task_list_storage = []
         self.vector_store = Chroma(
@@ -19,12 +20,10 @@ class TaskStorageMcpServer:
         )
 
         if clean_db:
-            #for cleaning db
+            # for cleaning db
             ids_to_del = self.vector_store.get()["ids"]
             if len(ids_to_del) > 0:
                 self.vector_store.delete(ids=ids_to_del)
-
-
 
         @self.mcp.tool(name="add_task", description="Add a new task to the local to-do list.")
         def add_task(
@@ -33,15 +32,20 @@ class TaskStorageMcpServer:
         ) -> str:
             """Add a new task to the local to-do list."""
             id = self.id_generator(description)
-            documents = [Document(
-                page_content=description,
-                metadata={"priority": priority},
-                id=id,
-            )]
+            documents = [
+                Document(
+                    page_content=description,
+                    metadata={"priority": priority},
+                    id=id,
+                )
+            ]
             self.vector_store.add_documents(documents=documents, ids=[id])
             return f"Successfully added task: {description} with id: {id} and priority: {priority}"
 
-        @self.mcp.tool(name="delete_task", description="Delete a task from the local to-do list using the id. The id for all taks can be fetched using list_tasks tool.")
+        @self.mcp.tool(
+            name="delete_task",
+            description="Delete a task from the local to-do list using the id. The id for all taks can be fetched using list_tasks tool.",
+        )
         def delete_task(
             id: Annotated[str, Field(description="Id of the task to delete")],
         ) -> str:
@@ -55,7 +59,13 @@ class TaskStorageMcpServer:
             result = self.vector_store.get()
             all_tasks = []
             for i in range(len(result["ids"])):
-                all_tasks.append({"description": result["documents"][i], "id": result["ids"][i], "priority": result["metadatas"][i]["priority"]})
+                all_tasks.append(
+                    {
+                        "description": result["documents"][i],
+                        "id": result["ids"][i],
+                        "priority": result["metadatas"][i]["priority"],
+                    }
+                )
             return all_tasks
 
     def id_generator(self, description: str = ""):
