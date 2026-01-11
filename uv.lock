@@ -1458,6 +1458,7 @@ dependencies = [
     { name = "langchain" },
     { name = "langchain-mcp-adapters" },
     { name = "langgraph" },
+    { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "typing" },
 ]
@@ -1476,6 +1477,7 @@ requires-dist = [
     { name = "langchain", specifier = ">=1.2.3" },
     { name = "langchain-mcp-adapters", specifier = ">=0.2.1" },
     { name = "langgraph", specifier = ">=1.0.5" },
+    { name = "pydantic", specifier = ">=2.12.5" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "typing", specifier = ">=3.10.0.0" },
 ]

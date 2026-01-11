@@ -3,4 +3,5 @@ langchain_mcp_adapters
 langgraph
 typing
 boto3
-python-dotenv
+python - dotenv
+pydantic
