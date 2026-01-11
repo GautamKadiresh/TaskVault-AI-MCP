@@ -6,27 +6,40 @@ from taskvault_ai_mcp.mcp_server.task_storage_service import TaskStorageMcpServe
 
 @pytest.fixture
 def server():
-    return TaskStorageMcpServer()
+    return TaskStorageMcpServer(clean_db=True)
 
 
 @pytest.mark.asyncio
-async def test_add_and_list_tasks(server):
-    await server.mcp.call_tool("add_task", arguments={"desc": "Dummy Task"})
+async def test_add_and_delete_tasks(server):
+
+    # Step 1: Add a dummy task and confirm it is added
+    await server.mcp.call_tool("add_task", arguments={"description": "Dummy Task"})
     task_lists = await server.mcp.call_tool("list_tasks", arguments={})
-    assert json.loads(task_lists[0].text)["desc"] == "Dummy Task"
+    assert json.loads(task_lists[0].text)["description"] == "Dummy Task"
     assert json.loads(task_lists[0].text)["id"] == server.id_generator("Dummy Task")
     assert json.loads(task_lists[0].text)["priority"] == 5
+
+    # Step 2: Delete the dummy task and confirm it is deleted
+    await server.mcp.call_tool("delete_task", arguments={"id": json.loads(task_lists[0].text)["id"]})
+    task_lists = await server.mcp.call_tool("list_tasks", arguments={})
+    assert len(task_lists) == 0
 
 
 @pytest.mark.asyncio
 async def test_mcp_server_list_tools(server):
     all_tools = await server.mcp.list_tools()
-    assert len(all_tools) == 2
+    assert len(all_tools) == 3
     tool_names = [tool.name for tool in all_tools]
     assert "add_task" in tool_names
+    assert "list_tasks" in tool_names
+    assert "delete_task" in tool_names
     for tool in all_tools:
         if tool.name == "add_task":
-            assert "desc" in tool.inputSchema["properties"]
-            assert tool.inputSchema["required"] == ["desc"]
+            assert "description" in tool.inputSchema["properties"]
+            assert tool.inputSchema["required"] == ["description"]
             assert "priority" in tool.inputSchema["properties"]
-    assert "list_tasks" in tool_names
+        if tool.name == "delete_task":
+            assert "id" in tool.inputSchema["properties"]
+            assert tool.inputSchema["required"] == ["id"]
+        if tool.name == "list_tasks":
+            assert "required" not in tool.inputSchema

@@ -7,6 +7,7 @@ wheels/
 *.egg-info
 *.ipynb
 *client_demo.py
+/chroma_vector_db/*
 
 # Virtual environments
 .venv
