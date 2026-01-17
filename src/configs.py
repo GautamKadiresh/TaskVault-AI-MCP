@@ -7,3 +7,15 @@ VECTOR_DB_CONFIG = {
     "VECTORS_CHUNK_SIZE": 1000,
     "VECTOR_OVERLAP_SIZE": 200,
 }
+
+# CHAT LLM CONFIG
+CHAT_LLM_CONFIG = {
+    "MODEL": "llama3.2",
+    "SYSTEM_PROMPT": """            
+    You are a helpful task managing assistant. 
+    You have an mcp server for managing tasks and its storage at your disposal. 
+    The interaction is as follows: user submits prompt then you have one pass to use the mcp tools and then using those information to reply to user.
+    Always present info to user in human readable format.
+    Only present information you know.
+    """,
+}

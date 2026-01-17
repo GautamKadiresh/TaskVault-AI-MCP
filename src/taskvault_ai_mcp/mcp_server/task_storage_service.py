@@ -7,10 +7,12 @@ from langchain_ollama import OllamaEmbeddings
 
 from configs import VECTOR_DB_CONFIG
 import os
+import hashlib
 
 
 class TaskStorageMcpServer:
     def __init__(self, clean_db=False):
+        print(__name__)
         self.mcp = FastMCP("task_storage_mcp_server")
         self.task_list_storage = []
         self.vector_store = Chroma(
@@ -21,37 +23,42 @@ class TaskStorageMcpServer:
 
         if clean_db:
             # for cleaning db
-            ids_to_del = self.vector_store.get()["ids"]
-            if len(ids_to_del) > 0:
-                self.vector_store.delete(ids=ids_to_del)
+            task_ids_to_del = self.vector_store.get()["ids"]
+            if len(task_ids_to_del) > 0:
+                self.vector_store.delete(ids=task_ids_to_del)
 
-        @self.mcp.tool(name="add_task", description="Add a new task to the local to-do list.")
+        @self.mcp.tool(
+            name="add_task",
+            description="Add a new task to the local to-do list. input is description and (optional)priority",
+        )
         def add_task(
             description: Annotated[str, Field(description="Description of the task to add")],
-            priority: Annotated[int, Field(ge=1, le=5, description="Priority of the task (1-5, 1 being highest)")] = 5,
+            priority: Annotated[
+                int, Field(ge=1, le=5, description="Priority of the task (1-5, 1 being highest priority)")
+            ] = 5,
         ) -> str:
             """Add a new task to the local to-do list."""
-            id = self.id_generator(description)
+            task_id = self.task_id_generator(description)
             documents = [
                 Document(
                     page_content=description,
                     metadata={"priority": priority},
-                    id=id,
+                    task_id=task_id,
                 )
             ]
-            self.vector_store.add_documents(documents=documents, ids=[id])
-            return f"Successfully added task: {description} with id: {id} and priority: {priority}"
+            self.vector_store.add_documents(documents=documents, ids=[task_id])
+            return f"Successfully added task: {description} with task_id: {task_id} and priority: {priority}"
 
         @self.mcp.tool(
-            name="delete_task",
-            description="Delete a task from the local to-do list using the id. The id for all taks can be fetched using list_tasks tool.",
+            name="delete_tasks",
+            description="Delete a task from the local to-do list using the task_id. The task_id for all tasks can be fetched using list_tasks tool.",
         )
-        def delete_task(
-            id: Annotated[str, Field(description="Id of the task to delete")],
+        def delete_tasks(
+            task_ids: Annotated[list[str], Field(description="List of task_ids of the tasks to delete")],
         ) -> str:
-            """Delete a task from the local to-do list using the id."""
-            self.vector_store.delete(ids=[id])
-            return f"Successfully deleted task with id: {id}"
+            """Delete a task from the local to-do list using the task_id."""
+            self.vector_store.delete(ids=task_ids)
+            return f"Successfully deleted tasks with task_ids: {task_ids}"
 
         @self.mcp.tool(name="list_tasks", description="Retrieve all current tasks.")
         def list_tasks() -> list:
@@ -62,16 +69,23 @@ class TaskStorageMcpServer:
                 all_tasks.append(
                     {
                         "description": result["documents"][i],
-                        "id": result["ids"][i],
+                        "task_id": result["ids"][i],
                         "priority": result["metadatas"][i]["priority"],
                     }
                 )
+            if len(all_tasks) == 0:
+                return ["No tasks found"]
             return all_tasks
 
-    def id_generator(self, description: str = ""):
-        return str(hash(description))
+    def task_id_generator(self, description: str = ""):
+        return hashlib.shake_256(description.encode("utf8")).hexdigest(5)
+
+
+def main():
+    server = TaskStorageMcpServer()
+    server.mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
-    server = TaskStorageMcpServer()
-    server.mcp.run(transport="stdio")
+    print("Running task storage service as a standalone mcp server")
+    main()

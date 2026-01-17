@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Gautam Kadiresh", email = "gautamkadiresh@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12.3"
 dependencies = [
     "boto3>=1.42.25",
     "langchain>=1.2.3",
@@ -20,7 +20,8 @@ dependencies = [
 ]
 
 [project.scripts]
-taskvault-ai-mcp = "taskvault_ai_mcp:main"
+taskvault = "taskvault_ai_mcp:main"
+task_storage_service = "taskvault_ai_mcp.mcp_server.task_storage_service:main"
 
 [build-system]
 requires = ["uv_build>=0.9.21,<0.10.0"]
@@ -48,5 +49,3 @@ force-exclude = '''
   | .*/__pycache__/.*
 )
 '''
-
-
