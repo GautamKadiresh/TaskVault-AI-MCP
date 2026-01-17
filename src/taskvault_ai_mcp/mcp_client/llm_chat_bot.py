@@ -7,6 +7,14 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_core.messages import SystemMessage, HumanMessage
 from configs import CHAT_LLM_CONFIG
+from constants import (
+    BOLD_RED,
+    BOLD_GREEN,
+    BOLD_YELLOW,
+    BOLD_MAGENTA,
+    DIM_CYAN,
+    RESET_FONT,
+)
 
 
 async def run_chat():
@@ -47,32 +55,43 @@ async def run_chat():
             graph = builder.compile()
             # System message
             messages = [SystemMessage(content=CHAT_LLM_CONFIG["SYSTEM_PROMPT"])]
+            print(f"{BOLD_MAGENTA}Hello from TASK VAULT AI!{RESET_FONT}\n")
 
-            # Interactive loop (or simple run as requested, but loop is better for chat)
-            print("Chat with AI driven task manager (type 'exit' or 'quit' or 'q' to stop):")
+            # Interactive loop
+
             while True:
-                user_input = input("User: ")
+                print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
+                print(
+                    f"{BOLD_GREEN}Chat with AI driven task manager (type 'exit' or 'quit' or 'q' to stop){RESET_FONT}"
+                )
+                user_input = input()
                 if user_input.lower() in ["exit", "quit", "q"]:
+                    print(f"\n{BOLD_YELLOW}BYE!!{RESET_FONT}\n")
                     break
                 messages.append(HumanMessage(content=user_input))
 
-                # Stream the output
+                # Stream the output. for debugging or internal monitoring
                 async for event in graph.astream({"messages": messages}, stream_mode="values"):
-                    # event["messages"][-1].pretty_print()
-                    # print(event["messages"][-1].type)
+                    messages.append(event["messages"][-1])
                     if event["messages"][-1].type == "human":
                         pass
                     elif event["messages"][-1].type == "ai":
-                        print(event["messages"][-1].content)
+                        if (
+                            tools_condition(event["messages"]) != "tools"
+                        ):  # only print ai messages which are meant for user and not tool calls
+                            print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
+                            print(f"{BOLD_MAGENTA}TASK VAULT AI:{RESET_FONT}")
+                            print(event["messages"][-1].content)
+                        ## for understanding internal working of mcp server ###
+                        else:
+                            print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
+                            tool_call_basic = lambda x: [{"name": i["name"], "args": i["args"]} for i in x]
+                            print(
+                                f"{DIM_CYAN}ai internal tool call message: {tool_call_basic(event['messages'][-1].tool_calls)}{RESET_FONT}"
+                            )
                     elif event["messages"][-1].type == "tool":
-                        # for understanding internal working of mcp server
-                        # print("tool called: ", event["messages"][-1].name)
-                        # print("tool reply: ", event["messages"][-1].content)
-                        pass
-
-                # Re-run to just get the final response for simplicity in this loop or use invoke
-                final_state = await graph.ainvoke({"messages": messages})
-                messages = final_state["messages"]
+                        print(f"{DIM_CYAN}mcp tool called: {event['messages'][-1].name}{RESET_FONT}")
+                        print(f"{DIM_CYAN}mcp server reply:\n {event['messages'][-1].content}{RESET_FONT}")
 
 
 def run() -> None:

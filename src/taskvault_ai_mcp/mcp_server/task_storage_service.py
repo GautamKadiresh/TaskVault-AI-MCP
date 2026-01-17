@@ -47,7 +47,7 @@ class TaskStorageMcpServer:
                 )
             ]
             self.vector_store.add_documents(documents=documents, ids=[task_id])
-            return f"Successfully added task: {description} with task_id: {task_id} and priority: {priority}"
+            return f"Successfully added task: \"{description}\" with task_id: {task_id} and priority: {priority}"
 
         @self.mcp.tool(
             name="delete_tasks",
