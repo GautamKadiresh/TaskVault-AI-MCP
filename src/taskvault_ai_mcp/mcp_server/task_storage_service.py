@@ -34,7 +34,8 @@ class TaskStorageMcpServer:
         def add_task(
             description: Annotated[str, Field(description="Description of the task to add")],
             priority: Annotated[
-                int, Field(ge=1, le=5, description="Priority of the task (1 to 5, 1 assigned for highest priority tasks)")
+                int,
+                Field(ge=1, le=5, description="Priority of the task (1 to 5, 1 assigned for highest priority tasks)"),
             ] = 5,
         ) -> str:
             """Add a new task to the local to-do list."""
@@ -47,7 +48,7 @@ class TaskStorageMcpServer:
                 )
             ]
             self.vector_store.add_documents(documents=documents, ids=[task_id])
-            return f"Successfully added task: \"{description}\" with task_id: {task_id} and priority: {priority}"
+            return f'Successfully added task: "{description}" with task_id: {task_id} and priority: {priority}'
 
         @self.mcp.tool(
             name="delete_tasks",
