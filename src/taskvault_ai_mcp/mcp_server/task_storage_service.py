@@ -78,7 +78,55 @@ class TaskStorageMcpServer:
                 return ["No tasks found"]
             return all_tasks
 
+        @self.mcp.tool(name="search_tasks_by_priority", description="Retrieve all tasks with the given priority.")
+        def search_tasks_by_priority(
+            priority: Annotated[
+                int,
+                Field(
+                    ge=1,
+                    le=5,
+                    description="List tasks with the given priority (1 to 5, 1 assigned for highest priority tasks)",
+                ),
+            ],
+        ) -> list:
+            """Retrieve all tasks with the given priority."""
+            result = self.vector_store.get(where={"priority": priority})
+            all_tasks = []
+            for i in range(len(result["ids"])):
+                all_tasks.append(
+                    {
+                        "description": result["documents"][i],
+                        "task_id": result["ids"][i],
+                        "priority": result["metadatas"][i]["priority"],
+                    }
+                )
+            if len(all_tasks) == 0:
+                return ["No tasks found"]
+            return all_tasks
+
+        @self.mcp.tool(name="search_tasks_by_similarity", description="Search tasks with similar words.")
+        def search_tasks_by_similarity(
+            query: Annotated[
+                str, Field(description="Query words to search for tasks. Tasks will be fetched using vector search")
+            ],
+        ) -> list:
+            """Search tasks with similar words."""
+            result = self.vector_store.similarity_search(query)
+            all_tasks = []
+            for i in range(len(result)):
+                all_tasks.append(
+                    {
+                        "description": result[i].page_content,
+                        "task_id": result[i].id,
+                        "priority": result[i].metadata["priority"],
+                    }
+                )
+            if len(all_tasks) == 0:
+                return ["No tasks found"]
+            return all_tasks
+
     def task_id_generator(self, description: str = ""):
+        """Generate a unique task_id for a given description."""
         return hashlib.shake_256(description.encode("utf8")).hexdigest(5)
 
 
