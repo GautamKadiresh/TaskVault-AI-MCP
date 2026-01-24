@@ -20,21 +20,22 @@
 
 ## Prerequisites
 - Python3.12 or above
-- UV pacakage manager
+- uv package manager
 - Ollama
-- An MCP client (e.g., Claude desktop). The project also includes a simple cli based MCP client for quick setup.
+- An MCP client (e.g., using Claude Desktop). The project also includes a simple cli based MCP client for quick setup.
 
-## Steps to connect to the MCP server using Claude desktop
+## Steps to connect to the MCP server using Claude Desktop
 > [!NOTE]
-> This requires paid plan of claude desktop. 
+> This requires [paid plan](https://claude.com/pricing) of Claude Desktop.
 
 1. Clone/download the repository
 2. Download and install ollama from [Official Ollama Site](https://ollama.com/download)
 3. Download  embedding model mxbai-embed-large by running </br>```ollama pull mxbai-embed-large```
-4. Install Claude desktop from [Official Claude Site](https://claude.com/download)
-5. Go to developer settings in claude desktop. (Settings -> Desktop App -> Developer -> Local MCP servers -> Edit config)
-![Claude desktop mcp connector settings](docs/claude_desktop_mcp_server_setting.png)
-6. This opens folder with Open claude_desktop_config.json file. Paste the below in the file. Please change the absolute path to the repository.
+4. Install Claude Desktop from [Official Claude Site](https://claude.com/download)
+5. Go to developer settings in using Claude Desktop. </br>
+(Settings -> Desktop App -> Developer -> Local MCP servers -> Edit config)
+![Claude Desktop mcp connector settings](docs/claude_desktop_mcp_server_setting.png)
+6. This opens folder with claude_desktop_config.json. Open this file and Paste the below code. Please change the absolute path to the repository.
     ```json
     {
     "mcpServers": {
@@ -49,7 +50,7 @@
         }
     }
     }
-7. Restart claude desktop and start a new chat. the MCP server "task_storage_service" should be listed under Connectors.
+7. Restart Claude Desktop and start a new chat. the MCP server "task_storage_service" should be listed under Connectors.
 
 
 ## Steps to connect to the MCP server using using Ollama and inbuilt MCP client.
