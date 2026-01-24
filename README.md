@@ -21,6 +21,7 @@
 ## Prerequisites
 - Python3.12 or above
 - UV pacakage manager
+- Ollama
 - An MCP client (e.g., Claude desktop). The project also includes a simple cli based MCP client for quick setup.
 
 ## Steps to connect to the MCP server using Claude desktop
@@ -28,10 +29,12 @@
 > This requires paid plan of claude desktop. 
 
 1. Clone/download the repository
-2. Install Claude desktop 
-3. Go to developer settings in claude desktop. (Settings -> Desktop App -> Developer -> Local MCP servers -> Edit config)
+2. Download and install ollama from [Official Ollama Site](https://ollama.com/download)
+3. Download  embedding model mxbai-embed-large by running </br>```ollama pull mxbai-embed-large```
+4. Install Claude desktop from [Official Claude Site](https://claude.com/download)
+5. Go to developer settings in claude desktop. (Settings -> Desktop App -> Developer -> Local MCP servers -> Edit config)
 ![Claude desktop mcp connector settings](docs/claude_desktop_mcp_server_setting.png)
-4. Open claude_desktop_config.json file and paste the below. Please change the absolute path to the repository.
+6. This opens folder with Open claude_desktop_config.json file. Paste the below in the file. Please change the absolute path to the repository.
     ```json
     {
     "mcpServers": {
@@ -46,13 +49,15 @@
         }
     }
     }
-    ```
-5. Restart claude desktop and start a new chat. the MCP server "task_storage_service" should be listed under Connectors.
+7. Restart claude desktop and start a new chat. the MCP server "task_storage_service" should be listed under Connectors.
+
 
 ## Steps to connect to the MCP server using using Ollama and inbuilt MCP client.
+> [!NOTE]
+> This is free but requires sufficient RAM to run small llm models like llama3.2. 
 1. Clone/download the repository
 2. Download and install ollama from [Official Ollama Site](https://ollama.com/download)
-3. Download llm model llama3.2 and embedding model mxbai-embed-large by running <br /> ```ollama pull llama3.2; ollama pull mxbai-embed-large```
-4. Run in cmd ```uv tool install . -e```. <br /> This will automatically install all depedencies and create an executable mind-palace.exe.
-5. Run in cmd  ```taskvault``` to start cli based mcp client.
+3. Download llm model llama3.2 and embedding model mxbai-embed-large by running </br>```ollama pull llama3.2; ollama pull mxbai-embed-large```
+4. Run in cmd ```uv tool install . -e```.</br> This will automatically install all depedencies and create an executable taskvault.exe.
+5. Run in cmd  ```taskvault```</br>
 ![Sample Chat using inbuilt mpc client](docs/Inbuilt_mcp_client_sample_chat.png)
