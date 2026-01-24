@@ -30,7 +30,7 @@
 1. Clone/download the repository
 2. Install Claude desktop 
 3. Go to developer settings in claude desktop. (Settings -> Desktop App -> Developer -> Local MCP servers -> Edit config)
-
+![Claude desktop mcp connector settings](docs/claude_desktop_mcp_server_setting.png)
 4. Open claude_desktop_config.json file and paste the below. Please change the absolute path to the repository.
     ```json
     {
