@@ -82,16 +82,16 @@ async def run_chat():
                             print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
                             print(f"{BOLD_MAGENTA}TASK VAULT AI:{RESET_FONT}")
                             print(event["messages"][-1].content)
-                        ## for understanding internal working of mcp server ###
-                        else:
-                            print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
-                            tool_call_basic = lambda x: [{"name": i["name"], "args": i["args"]} for i in x]
-                            print(
-                                f"{DIM_CYAN}ai internal tool call message: {tool_call_basic(event['messages'][-1].tool_calls)}{RESET_FONT}"
-                            )
-                    elif event["messages"][-1].type == "tool":
-                        print(f"{DIM_CYAN}mcp tool called: {event['messages'][-1].name}{RESET_FONT}")
-                        print(f"{DIM_CYAN}mcp server reply:\n {event['messages'][-1].content}{RESET_FONT}")
+                    # ## for understanding internal working of mcp server ###
+                    #     else:
+                    #         print(f"\n{BOLD_RED}{'_'*100}{RESET_FONT}")
+                    #         tool_call_basic = lambda x: [{"name": i["name"], "args": i["args"]} for i in x]
+                    #         print(
+                    #             f"{DIM_CYAN}ai internal tool call message: {tool_call_basic(event['messages'][-1].tool_calls)}{RESET_FONT}"
+                    #         )
+                    # elif event["messages"][-1].type == "tool":
+                    #     print(f"{DIM_CYAN}mcp tool called: {event['messages'][-1].name}{RESET_FONT}")
+                    #     print(f"{DIM_CYAN}mcp server reply:\n {event['messages'][-1].content}{RESET_FONT}")
 
 
 def run() -> None:

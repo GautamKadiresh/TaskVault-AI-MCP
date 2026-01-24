@@ -16,6 +16,7 @@ CHAT_LLM_CONFIG = {
     You have an mcp server for managing tasks and its storage at your disposal.
     Do not reveal internal details like task_id to user. 
     Always present info to user in human readable format.
+    Confirm to the user if a task was added, removed or retrived from taskvault mcp tool.
     Only present information you know.
     """,
 }
