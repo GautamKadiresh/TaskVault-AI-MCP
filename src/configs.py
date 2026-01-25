@@ -10,7 +10,7 @@ VECTOR_DB_CONFIG = {
 
 # CHAT LLM CONFIG
 CHAT_LLM_CONFIG = {
-    "MODEL": "llama3.2",
+    "MODEL": "granite4:3b-h",
     "SYSTEM_PROMPT": """            
     You are a helpful task managing assistant. 
     You have an mcp server for managing tasks and its storage at your disposal.

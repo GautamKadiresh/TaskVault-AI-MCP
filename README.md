@@ -55,10 +55,10 @@
 
 ## Steps to connect to the MCP server using using Ollama and inbuilt MCP client.
 > [!NOTE]
-> This is free but requires sufficient RAM to run small llm models like llama3.2. 
+> This is free but requires sufficient RAM to run small llm models like IBM's granite4. 
 1. Clone/download the repository
 2. Download and install ollama from [Official Ollama Site](https://ollama.com/download)
-3. Download llm model llama3.2 and embedding model mxbai-embed-large by running </br>```ollama pull llama3.2; ollama pull mxbai-embed-large```
+3. Download llm model granite4:3b-h and embedding model mxbai-embed-large by running </br>```ollama pull granite4:3b-h; ollama pull mxbai-embed-large```
 4. Run in cmd ```uv tool install . -e```.</br> This will automatically install all depedencies and create an executable taskvault.exe.
 5. Run in cmd  ```taskvault```</br>
 ![Sample Chat using inbuilt mpc client](docs/Inbuilt_mcp_client_sample_chat.png)
