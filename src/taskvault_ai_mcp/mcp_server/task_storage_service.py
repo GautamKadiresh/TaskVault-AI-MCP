@@ -1,5 +1,7 @@
 from typing import Annotated
-from pydantic import Field
+import functools
+import inspect
+from pydantic import Field, ValidationError
 from mcp.server.fastmcp import FastMCP
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
@@ -27,18 +29,35 @@ class TaskStorageMcpServer:
             if len(task_ids_to_del) > 0:
                 self.vector_store.delete(ids=task_ids_to_del)
 
+        def secure_error_handler(func):
+            """Middleware decorator to catch tool errors and return them safely to the LLM without leaking error stack trace."""
+
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    return f"Error executing tool {func.__name__}: {e}"
+
+            wrapper.__signature__ = inspect.signature(func)
+            return wrapper
+
         @self.mcp.tool(
             name="add_task",
             description="Add a new task to the local to-do list. input is description and (optional)priority",
         )
+        @secure_error_handler
         def add_task(
             description: Annotated[str, Field(description="Description of the task to add")],
             priority: Annotated[
                 int,
-                Field(ge=1, le=5, description="Priority of the task (1 to 5, 1 assigned for highest priority tasks)"),
+                Field(description="Priority of the task (1 to 5, 1 assigned for highest priority tasks)"),
             ] = 5,
         ) -> str:
             """Add a new task to the local to-do list."""
+            if not (1 <= priority <= 5):
+                raise ValidationError(f"Invalid priority value: {priority}. Priority of task must be between 1 and 5")
+
             task_id = self.task_id_generator(description)
             documents = [
                 Document(
@@ -54,6 +73,7 @@ class TaskStorageMcpServer:
             name="delete_tasks",
             description="Delete a task from the local to-do list using the task_id. The task_id for all tasks can be fetched using list_tasks tool.",
         )
+        @secure_error_handler
         def delete_tasks(
             task_ids: Annotated[list[str], Field(description="List of task_ids of the tasks to delete")],
         ) -> str:
@@ -62,6 +82,7 @@ class TaskStorageMcpServer:
             return f"Successfully deleted tasks with task_ids: {task_ids}"
 
         @self.mcp.tool(name="list_tasks", description="Retrieve all current tasks.")
+        @secure_error_handler
         def list_tasks() -> list:
             """Retrieve all current tasks."""
             result = self.vector_store.get()
@@ -79,17 +100,19 @@ class TaskStorageMcpServer:
             return all_tasks
 
         @self.mcp.tool(name="search_tasks_by_priority", description="Retrieve all tasks with the given priority.")
+        @secure_error_handler
         def search_tasks_by_priority(
             priority: Annotated[
                 int,
                 Field(
-                    ge=1,
-                    le=5,
                     description="List tasks with the given priority (1 to 5, 1 assigned for highest priority tasks)",
                 ),
             ],
         ) -> list:
             """Retrieve all tasks with the given priority."""
+            if not (1 <= priority <= 5):
+                raise ValidationError("Priority must be between 1 and 5")
+
             result = self.vector_store.get(where={"priority": priority})
             all_tasks = []
             for i in range(len(result["ids"])):
@@ -105,6 +128,7 @@ class TaskStorageMcpServer:
             return all_tasks
 
         @self.mcp.tool(name="search_tasks_by_similarity", description="Search tasks with similar words.")
+        @secure_error_handler
         def search_tasks_by_similarity(
             query: Annotated[
                 str, Field(description="Query words to search for tasks. Tasks will be fetched using vector search")
