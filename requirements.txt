@@ -3,6 +3,6 @@ langchain_chroma
 langchain_ollama
 langchain_mcp_adapters
 langgraph
+fastmcp
 typing
-python - dotenv
 pydantic
